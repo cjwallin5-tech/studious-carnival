@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Graph Lab — Social Network Visualizer</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>Graph&nbsp;Lab</h1>
+    <span class="subtitle">social-network algorithm visualizer</span>
+    <div class="spacer"></div>
+    <input id="api-base" type="text" value="http://localhost:8000" spellcheck="false"
+           title="Base URL of the FastAPI server" />
+    <button id="btn-connect" class="primary">Connect</button>
+    <button id="btn-seed" disabled>Seed demo network</button>
+    <button id="btn-refresh" disabled>Refresh graph</button>
+    <button id="btn-reset" class="danger" disabled
+            title="Delete ALL users, posts, comments, likes, and follows">Reset database</button>
+    <span id="conn-status" class="conn conn-off">disconnected</span>
+  </header>
+
+  <main class="layout">
+    <!-- ============ left: exercise scoreboard ============ -->
+    <aside class="panel scoreboard">
+      <div class="panel-head">
+        <h2>Exercises</h2>
+        <label class="auto-toggle" title="Re-check every 5 seconds">
+          <input type="checkbox" id="auto-poll" /> auto
+        </label>
+      </div>
+      <p class="hint">
+        Each row probes its API endpoint. <b>stub</b> = the function in
+        <code>app/graph/algorithms.py</code> still raises
+        <code>NotImplementedError</code> (HTTP&nbsp;501).
+      </p>
+      <ul id="exercise-list" class="exercise-list"></ul>
+      <div class="progress-wrap">
+        <div class="progress-bar"><div id="progress-fill"></div></div>
+        <span id="progress-label">0 / 10 implemented</span>
+      </div>
+    </aside>
+
+    <!-- ============ center: the graph ============ -->
+    <section class="stage">
+      <div class="stage-toolbar">
+        <span class="toolbar-label">overlay:</span>
+        <button class="overlay-btn active" data-overlay="none">plain</button>
+        <button class="overlay-btn" data-overlay="influence" title="Node size by PageRank (Exercise 9)">influence</button>
+        <button class="overlay-btn" data-overlay="communities" title="Color by community (Exercise 10)">communities</button>
+        <button class="overlay-btn" data-overlay="components" title="Color by connected component (Exercise 7)">components</button>
+        <span id="overlay-note" class="overlay-note"></span>
+      </div>
+      <svg id="graph-svg" viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#4a5870" />
+          </marker>
+          <marker id="arrow-hot" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#f59e0b" />
+          </marker>
+        </defs>
+        <g id="edges-layer"></g>
+        <g id="nodes-layer"></g>
+      </svg>
+      <div id="stage-empty" class="stage-empty">
+        Connect to the API, then <b>Seed demo network</b> if the graph is empty.<br />
+        <span class="dim">Edges point from follower to followed: A &rarr; B means “A follows B”.</span>
+      </div>
+      <div class="stage-help">
+        click: inspect a user &nbsp;·&nbsp; <b>shift-click</b> a second user: compare &nbsp;·&nbsp; drag to rearrange
+      </div>
+    </section>
+
+    <!-- ============ right: inspector ============ -->
+    <aside class="panel inspector">
+      <div class="panel-head"><h2 id="inspector-title">Inspector</h2></div>
+      <div id="inspector-body">
+        <p class="hint">Click a node to inspect a user. Shift-click a second node to
+        compare two users (shortest path, mutuals, similarity).</p>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="log-bar"><span id="log-line">ready.</span></footer>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
