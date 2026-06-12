@@ -54,7 +54,6 @@ class DirectedGraph:
         """
         self._out.setdefault(node, set())
         self._in.setdefault(node, set())
-        raise NotImplementedError("Graph step 01: implement add_node")
 
     def add_edge(self, u: Node, v: Node) -> None:
         """Add a directed edge u -> v, creating the endpoints if needed.
@@ -66,7 +65,10 @@ class DirectedGraph:
 
         Step 02 · tested by TestStep02AddEdge.
         """
-        raise NotImplementedError("Graph step 02: implement add_edge")
+        self.add_node(u)
+        self.add_node(v)
+        self._out[u].add(v)
+        self._in[v].add(u)
 
     def remove_edge(self, u: Node, v: Node) -> None:
         """Remove the edge u -> v if it exists (the nodes are kept).
@@ -156,7 +158,7 @@ class DirectedGraph:
 
         Step 03 · tested by TestStep03Nodes.
         """
-        raise NotImplementedError("Graph step 03: implement nodes")
+        return set(self._out)
 
     def edges(self) -> Iterator[tuple[Node, Node]]:
         """Yield every directed edge exactly once as a (source, target) tuple.
@@ -174,7 +176,7 @@ class DirectedGraph:
 
         Step 03 · tested by TestStep03Nodes.
         """
-        raise NotImplementedError("Graph step 03: implement number_of_nodes")
+        return len(self._out)
 
     def number_of_edges(self) -> int:
         """Total directed-edge count (sum of all the successor-set sizes).
