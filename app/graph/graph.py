@@ -52,6 +52,8 @@ class DirectedGraph:
 
         Step 01 · tested by TestStep01AddNode.
         """
+        self._out.setdefault(node, set())
+        self._in.setdefault(node, set())
         raise NotImplementedError("Graph step 01: implement add_node")
 
     def add_edge(self, u: Node, v: Node) -> None:
@@ -97,7 +99,7 @@ class DirectedGraph:
 
         Step 01 · tested by TestStep01AddNode.
         """
-        raise NotImplementedError("Graph step 01: implement has_node")
+        return node in self._out
 
     def has_edge(self, u: Node, v: Node) -> bool:
         """Return True if the edge u -> v exists. Never raises — unknown
@@ -105,7 +107,7 @@ class DirectedGraph:
 
         Step 02 · tested by TestStep02AddEdge.
         """
-        raise NotImplementedError("Graph step 02: implement has_edge")
+        return v in self._out.get(u, set())
 
     def successors(self, node: Node) -> set[Node]:
         """Nodes this node points to (who ``node`` follows).
