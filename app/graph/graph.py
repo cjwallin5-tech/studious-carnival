@@ -121,7 +121,8 @@ class DirectedGraph:
 
         Step 04 · tested by TestStep04SuccessorsPredecessors.
         """
-        raise NotImplementedError("Graph step 04: implement successors")
+        self._require(node)
+        return set(self._out[node])
 
     def predecessors(self, node: Node) -> set[Node]:
         """Nodes that point to this node (``node``'s followers).
@@ -131,7 +132,8 @@ class DirectedGraph:
 
         Step 04 · tested by TestStep04SuccessorsPredecessors.
         """
-        raise NotImplementedError("Graph step 04: implement predecessors")
+        self._require(node)
+        return set(self._in[node])
 
     # `neighbors` is an alias for successors — handy in undirected contexts
     # (after `to_undirected`, successors == predecessors == "the neighbors").
@@ -143,14 +145,14 @@ class DirectedGraph:
 
         Step 05 · tested by TestStep05Degrees.
         """
-        raise NotImplementedError("Graph step 05: implement out_degree")
+        return len(self.successors(node))
 
     def in_degree(self, node: Node) -> int:
         """How many nodes point to this node. KeyError if unknown.
 
         Step 05 · tested by TestStep05Degrees.
         """
-        raise NotImplementedError("Graph step 05: implement in_degree")
+        return len(self.predecessors(node))
 
     @property
     def nodes(self) -> set[Node]:
@@ -169,7 +171,9 @@ class DirectedGraph:
 
         Step 06 · tested by TestStep06Edges.
         """
-        raise NotImplementedError("Graph step 06: implement edges")
+        for node in self._in:
+            for successor in self.successors(node):
+                yield (node, successor)
 
     def number_of_nodes(self) -> int:
         """Total node count.
@@ -183,7 +187,7 @@ class DirectedGraph:
 
         Step 06 · tested by TestStep06Edges.
         """
-        raise NotImplementedError("Graph step 06: implement number_of_edges")
+        return len(list(self.edges()))
 
     # ----- transforms -----------------------------------------------------
 
