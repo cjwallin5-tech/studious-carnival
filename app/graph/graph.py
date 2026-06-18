@@ -79,7 +79,9 @@ class DirectedGraph:
 
         Step 07 · tested by TestStep07RemoveEdge.
         """
-        raise NotImplementedError("Graph step 07: implement remove_edge")
+        if self.has_edge(u, v):
+            self._out[u].discard(v)
+            self._in[v].discard(u)
 
     def remove_node(self, node: Node) -> None:
         """Remove a node and every edge touching it.
@@ -92,7 +94,11 @@ class DirectedGraph:
 
         Step 08 · tested by TestStep08RemoveNode.
         """
-        raise NotImplementedError("Graph step 08: implement remove_node")
+        if self.has_node(node):
+            self._out[node].discard(node)
+            self._in[node].discard(node)
+            self.successors(node).discard(node)
+            self.predecessors(node).discard(node)
 
     # ----- queries --------------------------------------------------------
 
@@ -205,7 +211,16 @@ class DirectedGraph:
 
         Step 09 · tested by TestStep09ToUndirected.
         """
-        raise NotImplementedError("Graph step 09: implement to_undirected")
+        graph = DirectedGraph()
+
+        for node in self.nodes:
+            graph.add_node(node)
+
+        for u, v in self.edges():
+            graph.add_edge(u, v)
+            graph.add_edge(v, u)
+
+        return graph
 
     # ----- helpers (provided) ----------------------------------------------
 

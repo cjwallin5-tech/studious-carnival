@@ -81,6 +81,7 @@ export class Api {
   shortestPath(a, b) { return this.get(`/graph/users/${a}/path/${b}`); }
   degrees(a, b) { return this.get(`/graph/users/${a}/degrees/${b}`); }
   reachable(id, depth = 2) { return this.get(`/graph/users/${id}/reachable?max_depth=${depth}`); }
+  allPaths(a, b, depth = 4) { return this.get(`/graph/users/${a}/paths/${b}?max_depth=${depth}`); }
   mutuals(a, b) { return this.get(`/graph/users/${a}/mutuals/${b}`); }
   similarity(a, b) { return this.get(`/graph/users/${a}/similarity/${b}`); }
   recommendations(id, limit = 5) { return this.get(`/graph/users/${id}/recommendations?limit=${limit}`); }

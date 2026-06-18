@@ -29,7 +29,43 @@ def _graph(edges: list[tuple[int, int]], isolated: list[int] | None = None) -> D
     return g
 
 
-# --- Exercise 1: bfs_shortest_path ----------------------------------------
+# --- Exercise 1: all_paths (DFS) -------------------------------------------
+
+
+@pytest.mark.xfail(raises=NotImplementedError, reason="implement all_paths")
+def test_all_paths_finds_every_route() -> None:
+    # Three simple routes from 1 to 4: 1->2->4, 1->3->4, and 1->2->3->4.
+    g = _graph([(1, 2), (1, 3), (2, 3), (2, 4), (3, 4)])
+    paths = {tuple(p) for p in algorithms.all_paths(g, 1, 4, max_depth=4)}
+    assert paths == {(1, 2, 4), (1, 3, 4), (1, 2, 3, 4)}
+
+
+@pytest.mark.xfail(raises=NotImplementedError, reason="implement all_paths")
+def test_all_paths_respects_max_depth() -> None:
+    g = _graph([(1, 2), (1, 3), (2, 3), (2, 4), (3, 4)])
+    # With only 2 hops allowed, the 3-hop route 1->2->3->4 must be excluded.
+    paths = {tuple(p) for p in algorithms.all_paths(g, 1, 4, max_depth=2)}
+    assert paths == {(1, 2, 4), (1, 3, 4)}
+
+
+@pytest.mark.xfail(raises=NotImplementedError, reason="implement all_paths")
+def test_all_paths_handles_cycles() -> None:
+    # 1->2->3->1 is a follow-loop; simple paths must not get stuck in it.
+    g = _graph([(1, 2), (2, 3), (3, 1), (2, 4)])
+    paths = {tuple(p) for p in algorithms.all_paths(g, 1, 4, max_depth=4)}
+    assert paths == {(1, 2, 4)}
+
+
+@pytest.mark.xfail(raises=NotImplementedError, reason="implement all_paths")
+def test_all_paths_edge_cases() -> None:
+    g = _graph([(1, 2), (2, 3)])
+    # source == target -> the trivial zero-hop path
+    assert algorithms.all_paths(g, 1, 1, max_depth=3) == [[1]]
+    # unreachable -> no paths at all
+    assert algorithms.all_paths(g, 3, 1, max_depth=3) == []
+
+
+# --- Exercise 2: bfs_shortest_path ----------------------------------------
 
 
 @pytest.mark.xfail(raises=NotImplementedError, reason="implement bfs_shortest_path")
@@ -51,7 +87,7 @@ def test_bfs_shortest_path_unreachable() -> None:
     assert algorithms.bfs_shortest_path(g, 3, 1) is None
 
 
-# --- Exercise 2: degrees_of_separation ------------------------------------
+# --- Exercise 3: degrees_of_separation ------------------------------------
 
 
 @pytest.mark.xfail(raises=NotImplementedError, reason="implement degrees_of_separation")
@@ -62,7 +98,7 @@ def test_degrees_of_separation() -> None:
     assert algorithms.degrees_of_separation(g, 4, 1) is None
 
 
-# --- Exercise 3: reachable_within -----------------------------------------
+# --- Exercise 4: reachable_within -----------------------------------------
 
 
 @pytest.mark.xfail(raises=NotImplementedError, reason="implement reachable_within")
@@ -72,7 +108,7 @@ def test_reachable_within() -> None:
     assert algorithms.reachable_within(g, 1, 2) == {1: 0, 2: 1, 3: 1, 4: 2, 5: 2}
 
 
-# --- Exercise 4: common_neighbors -----------------------------------------
+# --- Exercise 5: common_neighbors -----------------------------------------
 
 
 @pytest.mark.xfail(raises=NotImplementedError, reason="implement common_neighbors")
@@ -81,7 +117,7 @@ def test_common_neighbors() -> None:
     assert algorithms.common_neighbors(g, 1, 4) == {2, 3}
 
 
-# --- Exercise 5: jaccard_similarity ---------------------------------------
+# --- Exercise 6: jaccard_similarity ---------------------------------------
 
 
 @pytest.mark.xfail(raises=NotImplementedError, reason="implement jaccard_similarity")
@@ -93,7 +129,7 @@ def test_jaccard_similarity() -> None:
     assert algorithms.jaccard_similarity(g, 7, 8) == 0.0
 
 
-# --- Exercise 6: recommend_users ------------------------------------------
+# --- Exercise 7: recommend_users ------------------------------------------
 
 
 @pytest.mark.xfail(raises=NotImplementedError, reason="implement recommend_users")
@@ -109,7 +145,7 @@ def test_recommend_users() -> None:
     assert recommended.isdisjoint({1, 2, 3})
 
 
-# --- Exercise 7: connected_components -------------------------------------
+# --- Exercise 8: connected_components -------------------------------------
 
 
 @pytest.mark.xfail(raises=NotImplementedError, reason="implement connected_components")
@@ -123,7 +159,7 @@ def test_connected_components() -> None:
     }
 
 
-# --- Exercise 8: local_clustering_coefficient -----------------------------
+# --- Exercise 9: local_clustering_coefficient -----------------------------
 
 
 @pytest.mark.xfail(raises=NotImplementedError, reason="implement local_clustering_coefficient")
@@ -135,7 +171,7 @@ def test_local_clustering_coefficient() -> None:
     assert algorithms.local_clustering_coefficient(g, 4) == 0.0
 
 
-# --- Exercise 9: pagerank -------------------------------------------------
+# --- Exercise 10: pagerank ------------------------------------------------
 
 
 @pytest.mark.xfail(raises=NotImplementedError, reason="implement pagerank")
@@ -148,7 +184,7 @@ def test_pagerank() -> None:
     assert max(ranks, key=ranks.get) == 1
 
 
-# --- Exercise 10: detect_communities --------------------------------------
+# --- Exercise 11: detect_communities --------------------------------------
 
 
 @pytest.mark.xfail(raises=NotImplementedError, reason="implement detect_communities")

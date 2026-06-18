@@ -48,7 +48,7 @@ def recommendations(
 ) -> list[dict]:
     """People you may know — friends-of-friends ranked by mutual connections.
 
-    Powered by ``algorithms.recommend_users`` (Exercise 6).
+    Powered by ``algorithms.recommend_users`` (Exercise 7).
     """
     _require_user(session, user_id)
     graph = build_follow_graph(session)
@@ -62,8 +62,8 @@ def recommendations(
 def shortest_path(source_id: int, target_id: int, session: SessionDep) -> dict:
     """Shortest follow-path and degrees of separation between two users.
 
-    Powered by ``algorithms.bfs_shortest_path`` (Exercise 1) and
-    ``algorithms.degrees_of_separation`` (Exercise 2).
+    Powered by ``algorithms.bfs_shortest_path`` (Exercise 2) and
+    ``algorithms.degrees_of_separation`` (Exercise 3).
     """
     _require_user(session, source_id)
     _require_user(session, target_id)
@@ -86,7 +86,7 @@ def degrees(source_id: int, target_id: int, session: SessionDep) -> dict:
     """Degrees of separation between two users (hop count only).
 
     The path endpoint above derives its hop count from the BFS path, so this
-    route exists to exercise ``algorithms.degrees_of_separation`` (Exercise 2)
+    route exists to exercise ``algorithms.degrees_of_separation`` (Exercise 3)
     on its own.
     """
     _require_user(session, source_id)
@@ -105,7 +105,7 @@ def reachable(
 ) -> list[dict]:
     """Everyone reachable from a user within ``max_depth`` hops.
 
-    Powered by ``algorithms.reachable_within`` (Exercise 3).
+    Powered by ``algorithms.reachable_within`` (Exercise 4).
     """
     _require_user(session, user_id)
     graph = build_follow_graph(session)
@@ -119,11 +119,36 @@ def reachable(
     ]
 
 
+@router.get("/users/{source_id}/paths/{target_id}")
+def all_paths(
+    source_id: int,
+    target_id: int,
+    session: SessionDep,
+    max_depth: int = Query(default=4, ge=1, le=6),
+) -> dict:
+    """Every simple follow-path between two users, up to ``max_depth`` hops.
+
+    Where the path endpoint above returns the single shortest route (BFS),
+    this returns all of them — powered by ``algorithms.all_paths``
+    (Exercise 1, depth-first search).
+    """
+    _require_user(session, source_id)
+    _require_user(session, target_id)
+    graph = build_follow_graph(session)
+
+    paths = algorithms.all_paths(graph, source_id, target_id, max_depth=max_depth)
+    users = _users_by_ids(session, list({uid for path in paths for uid in path}))
+    return {
+        "count": len(paths),
+        "paths": [[users.get(uid) for uid in path] for path in sorted(paths, key=len)],
+    }
+
+
 @router.get("/users/{user_id}/mutuals/{other_id}")
 def mutuals(user_id: int, other_id: int, session: SessionDep) -> list[UserPublic]:
     """Accounts that both users follow.
 
-    Powered by ``algorithms.common_neighbors`` (Exercise 4).
+    Powered by ``algorithms.common_neighbors`` (Exercise 5).
     """
     _require_user(session, user_id)
     _require_user(session, other_id)
@@ -138,7 +163,7 @@ def mutuals(user_id: int, other_id: int, session: SessionDep) -> list[UserPublic
 def similarity(user_id: int, other_id: int, session: SessionDep) -> dict:
     """Jaccard similarity (0..1) between two users by who they follow.
 
-    Powered by ``algorithms.jaccard_similarity`` (Exercise 5).
+    Powered by ``algorithms.jaccard_similarity`` (Exercise 6).
     """
     _require_user(session, user_id)
     _require_user(session, other_id)
@@ -153,7 +178,7 @@ def influencers(
 ) -> list[dict]:
     """Most influential users by PageRank.
 
-    Powered by ``algorithms.pagerank`` (Exercise 9).
+    Powered by ``algorithms.pagerank`` (Exercise 10).
     """
     graph = build_follow_graph(session)
     ranks = algorithms.pagerank(graph)
@@ -167,7 +192,7 @@ def influencers(
 def clustering(user_id: int, session: SessionDep) -> dict:
     """Local clustering coefficient — how interconnected a user's circle is.
 
-    Powered by ``algorithms.local_clustering_coefficient`` (Exercise 8).
+    Powered by ``algorithms.local_clustering_coefficient`` (Exercise 9).
     """
     _require_user(session, user_id)
     graph = build_follow_graph(session)
@@ -181,7 +206,7 @@ def clustering(user_id: int, session: SessionDep) -> dict:
 def communities(session: SessionDep) -> list[dict]:
     """Detected communities (clusters of densely connected users).
 
-    Powered by ``algorithms.detect_communities`` (Exercise 10).
+    Powered by ``algorithms.detect_communities`` (Exercise 11).
     """
     graph = build_follow_graph(session)
     labels = algorithms.detect_communities(graph)
@@ -204,7 +229,7 @@ def communities(session: SessionDep) -> list[dict]:
 def components(session: SessionDep) -> list[list[UserPublic]]:
     """Connected components of the network (undirected reachability).
 
-    Powered by ``algorithms.connected_components`` (Exercise 7).
+    Powered by ``algorithms.connected_components`` (Exercise 8).
     """
     graph = build_follow_graph(session)
     comps = algorithms.connected_components(graph)

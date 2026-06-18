@@ -27,25 +27,27 @@ const PALETTE = [
 
 /** The scoreboard — one probe row per exercise. */
 const EXERCISES = [
-  { key: "path",       label: "Shortest path",     ex: "1",  fn: "bfs_shortest_path",
+  { key: "paths",      label: "All paths (DFS)",   ex: "1",  fn: "all_paths",
+    probe: (a, b) => api.allPaths(a, b) },
+  { key: "path",       label: "Shortest path",     ex: "2",  fn: "bfs_shortest_path",
     probe: (a, b) => api.shortestPath(a, b) },
-  { key: "degrees",    label: "Degrees of sep.",   ex: "2",  fn: "degrees_of_separation",
+  { key: "degrees",    label: "Degrees of sep.",   ex: "3",  fn: "degrees_of_separation",
     probe: (a, b) => api.degrees(a, b) },
-  { key: "reachable",  label: "Reachable set",     ex: "3",  fn: "reachable_within",
+  { key: "reachable",  label: "Reachable set",     ex: "4",  fn: "reachable_within",
     probe: (a) => api.reachable(a, 2) },
-  { key: "mutuals",    label: "Mutual follows",    ex: "4",  fn: "common_neighbors",
+  { key: "mutuals",    label: "Mutual follows",    ex: "5",  fn: "common_neighbors",
     probe: (a, b) => api.mutuals(a, b) },
-  { key: "similarity", label: "Jaccard similarity",ex: "5",  fn: "jaccard_similarity",
+  { key: "similarity", label: "Jaccard similarity",ex: "6",  fn: "jaccard_similarity",
     probe: (a, b) => api.similarity(a, b) },
-  { key: "recs",       label: "Recommendations",   ex: "6",  fn: "recommend_users",
+  { key: "recs",       label: "Recommendations",   ex: "7",  fn: "recommend_users",
     probe: (a) => api.recommendations(a, 1) },
-  { key: "components", label: "Components",        ex: "7",  fn: "connected_components",
+  { key: "components", label: "Components",        ex: "8",  fn: "connected_components",
     probe: () => api.components() },
-  { key: "clustering", label: "Clustering coeff.", ex: "8",  fn: "local_clustering_coefficient",
+  { key: "clustering", label: "Clustering coeff.", ex: "9",  fn: "local_clustering_coefficient",
     probe: (a) => api.clustering(a) },
-  { key: "influencers",label: "PageRank",          ex: "9",  fn: "pagerank",
+  { key: "influencers",label: "PageRank",          ex: "10", fn: "pagerank",
     probe: () => api.influencers(1) },
-  { key: "communities",label: "Communities",       ex: "10", fn: "detect_communities",
+  { key: "communities",label: "Communities",       ex: "11", fn: "detect_communities",
     probe: () => api.communities() },
 ];
 
@@ -239,7 +241,7 @@ async function applyOverlay(name) {
 
   if (name === "influence") {
     const res = await api.influencers(100);
-    if (!res.ok) return noteStub(note, res, "pagerank (Exercise 9)");
+    if (!res.ok) return noteStub(note, res, "pagerank (Exercise 10)");
     const scores = res.data.map((r) => r.score);
     const max = Math.max(...scores, 1e-9);
     for (const { user, score } of res.data) {
@@ -248,7 +250,7 @@ async function applyOverlay(name) {
     note.textContent = "node size ∝ PageRank";
   } else if (name === "communities") {
     const res = await api.communities();
-    if (!res.ok) return noteStub(note, res, "detect_communities (Exercise 10)");
+    if (!res.ok) return noteStub(note, res, "detect_communities (Exercise 11)");
     res.data.forEach((group, i) => {
       for (const m of group.members) {
         overlay.set(m.id, { color: PALETTE[i % PALETTE.length] });
@@ -257,7 +259,7 @@ async function applyOverlay(name) {
     note.textContent = `${res.data.length} communities`;
   } else if (name === "components") {
     const res = await api.components();
-    if (!res.ok) return noteStub(note, res, "connected_components (Exercise 7)");
+    if (!res.ok) return noteStub(note, res, "connected_components (Exercise 8)");
     res.data.forEach((comp, i) => {
       for (const u of comp) {
         overlay.set(u.id, { color: PALETTE[i % PALETTE.length] });
@@ -340,24 +342,24 @@ async function inspectUser(id) {
     </div>`;
   }
 
-  html += block("Reachable ≤ 2 hops <span class='ex-tag'>ex 3</span>", reachable, (rows) => {
+  html += block("Reachable ≤ 2 hops <span class='ex-tag'>ex 4</span>", reachable, (rows) => {
     const within = rows.filter((r) => r.depth > 0);
     return within.length
       ? within.map((r) => `${userChip(r.user)}<small class="dim">d${r.depth}</small>`).join(" ")
       : `<span class="dim">no one</span>`;
   });
 
-  html += block("People you may know <span class='ex-tag'>ex 6</span>", recs, (rows) =>
+  html += block("People you may know <span class='ex-tag'>ex 7</span>", recs, (rows) =>
     rows.length
       ? rows.map((r) => `${userChip(r.user)}<small class="dim">score ${r.score}</small>`).join(" ")
       : `<span class="dim">no candidates</span>`
   );
 
-  html += block("Clustering coefficient <span class='ex-tag'>ex 8</span>", clustering, (d) =>
+  html += block("Clustering coefficient <span class='ex-tag'>ex 9</span>", clustering, (d) =>
     `<b>${d.clustering_coefficient.toFixed(3)}</b> <span class="dim">how interconnected this user's circle is</span>`
   );
 
-  html += block("Influence <span class='ex-tag'>ex 9</span>", influencers, (rows) => {
+  html += block("Influence <span class='ex-tag'>ex 10</span>", influencers, (rows) => {
     const idx = rows.findIndex((r) => r.user.id === id);
     return idx === -1
       ? `<span class="dim">not ranked</span>`
@@ -386,23 +388,23 @@ async function inspectPair(a, b) {
   ]);
 
   let html = "";
-  html += block("Shortest follow-path <span class='ex-tag'>ex 1</span>", path, (d) =>
+  html += block("Shortest follow-path <span class='ex-tag'>ex 2</span>", path, (d) =>
     d.connected
       ? `<div class="path-row">${d.path.map(userChip).join('<span class="arrow">→</span>')}</div>`
       : `<span class="dim">not connected</span>`
   );
 
-  html += block("Degrees of separation <span class='ex-tag'>ex 2</span>", degrees, (d) =>
+  html += block("Degrees of separation <span class='ex-tag'>ex 3</span>", degrees, (d) =>
     d.connected
       ? `<b>${d.degrees}</b> <span class="dim">hop${d.degrees === 1 ? "" : "s"} on the shortest follow-path</span>`
       : `<span class="dim">not connected</span>`
   );
 
-  html += block("Both follow <span class='ex-tag'>ex 4</span>", mutuals, (rows) =>
+  html += block("Both follow <span class='ex-tag'>ex 5</span>", mutuals, (rows) =>
     rows.length ? rows.map(userChip).join(" ") : `<span class="dim">no one in common</span>`
   );
 
-  html += block("Jaccard similarity <span class='ex-tag'>ex 5</span>", similarity, (d) => {
+  html += block("Jaccard similarity <span class='ex-tag'>ex 6</span>", similarity, (d) => {
     const pct = (d.similarity * 100).toFixed(0);
     return `<div class="sim-bar"><div style="width:${pct}%"></div></div>
             <b>${d.similarity.toFixed(3)}</b> <span class="dim">overlap in who they follow</span>`;

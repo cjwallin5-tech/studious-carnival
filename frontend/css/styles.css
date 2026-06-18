@@ -37,6 +37,7 @@ code { font-size: 0.85em; background: var(--raised); padding: 0 4px; border-radi
 /* ---------- top bar ---------- */
 .topbar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
   padding: 10px 16px;
@@ -173,6 +174,7 @@ button.danger:hover:not(:disabled) { background: var(--error-bg); border-color: 
 }
 .stage-toolbar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 6px;
   padding: 8px 12px;
@@ -183,7 +185,7 @@ button.danger:hover:not(:disabled) { background: var(--error-bg); border-color: 
 .overlay-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
 .overlay-note { margin-left: 10px; font-size: 12px; color: var(--dim); }
 
-#graph-svg { flex: 1; width: 100%; min-height: 0; cursor: default; }
+#graph-svg { flex: 1; width: 100%; min-height: 0; cursor: default; touch-action: none; }
 
 .stage-empty {
   position: absolute;
@@ -268,6 +270,26 @@ button.danger:hover:not(:disabled) { background: var(--error-bg); border-color: 
   margin-bottom: 5px;
 }
 .sim-bar div { height: 100%; background: linear-gradient(90deg, #93c5fd, var(--accent)); }
+
+/* ---------- responsive ---------- */
+/* Short viewport (small window or browser zoom): let the page scroll
+   instead of crushing the graph. */
+@media (max-height: 640px) {
+  body { height: auto; min-height: 100vh; }
+  .stage { min-height: 480px; }
+  .panel { max-height: 70vh; }
+}
+@media (max-width: 1100px) {
+  body { height: auto; min-height: 100vh; }
+  .layout { grid-template-columns: 1fr; }
+  .stage { order: -1; min-height: 65vh; }
+  .panel { max-height: 50vh; }
+}
+@media (max-width: 600px) {
+  #api-base { flex: 1 1 140px; width: auto; min-width: 0; }
+  .layout { padding: 8px; gap: 8px; }
+  .stage { min-height: 55vh; }
+}
 
 /* ---------- log bar ---------- */
 .log-bar {

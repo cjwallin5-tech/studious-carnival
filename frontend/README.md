@@ -1,7 +1,7 @@
 # Graph Lab — frontend
 
 A zero-build web app for **watching the graph exercises come to life**. Each of
-the ten algorithms in `app/graph/algorithms.py` shows as a **stub** until a
+the eleven algorithms in `app/graph/algorithms.py` shows as a **stub** until a
 student implements it, then flips to **LIVE** — and the matching visualization
 starts working.
 
@@ -42,17 +42,17 @@ automatically.
    Check **auto** to re-poll every 5 s — with `uvicorn --reload`, the pill
    flips to LIVE on its own moments after a student saves their implementation.
 3. **The graph** (center): an arrow A → B means "A follows B".
-   - **Click** a node — inspect that user: reachable set (ex 3, highlighted on
-     the graph), recommendations (ex 6), clustering coefficient (ex 8),
-     PageRank rank (ex 9).
-   - **Shift-click** a second node — compare: shortest path (ex 1, drawn in
-     orange), degrees of separation (ex 2), mutual follows (ex 4), Jaccard
-     similarity (ex 5).
+   - **Click** a node — inspect that user: reachable set (ex 4, highlighted on
+     the graph), recommendations (ex 7), clustering coefficient (ex 9),
+     PageRank rank (ex 10).
+   - **Shift-click** a second node — compare: shortest path (ex 2, drawn in
+     orange), degrees of separation (ex 3), mutual follows (ex 5), Jaccard
+     similarity (ex 6).
    - **Drag** nodes to rearrange; click empty space to clear.
 4. **Overlays** (above the graph):
-   - **influence** — node size ∝ PageRank (ex 9)
-   - **communities** — color by detected community (ex 10)
-   - **components** — color by connected component (ex 7)
+   - **influence** — node size ∝ PageRank (ex 10)
+   - **communities** — color by detected community (ex 11)
+   - **components** — color by connected component (ex 8)
 
 Anything that depends on an unimplemented algorithm simply says
 *not implemented yet*, so the whole UI doubles as a progress scoreboard.

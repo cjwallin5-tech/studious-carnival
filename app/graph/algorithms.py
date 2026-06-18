@@ -16,9 +16,10 @@ Reminders about the graph (see ``builder.py`` for the full convention):
 You may add private helper functions to this module. Do NOT change the public
 function signatures — the API routes and tests depend on them.
 
-Suggested order (easiest first): bfs_shortest_path, degrees_of_separation,
+Suggested order: all_paths, bfs_shortest_path, degrees_of_separation,
 reachable_within, common_neighbors, jaccard_similarity, recommend_users,
-connected_components, local_clustering_coefficient, pagerank, detect_communities.
+connected_components, local_clustering_coefficient, pagerank,
+detect_communities.
 """
 
 from collections.abc import Hashable
@@ -29,13 +30,56 @@ Node = Hashable
 
 
 # ---------------------------------------------------------------------------
-# EXERCISE 1 — Breadth-first shortest path
+# EXERCISE 1 — All simple paths (depth-first search)
+# ---------------------------------------------------------------------------
+def all_paths(
+    graph: DirectedGraph, source: Node, target: Node, max_depth: int = 4
+) -> list[list[Node]]:
+    """Return EVERY simple follow-path from ``source`` to ``target``.
+
+    Find all of them — every distinct route a post could be reshared along
+    from ``source`` to ``target`` — up to ``max_depth`` hops long. Use
+    **depth-first search (DFS) with backtracking**: walk one route as deep as
+    it will go, and when it dead-ends, back up one step and try the next
+    branch. (Exercise 2 will answer a related question — just the *shortest*
+    route — with a different traversal.)
+
+    A path is *simple* if it never visits the same node twice. That rule is
+    what stops DFS from circling a follow-loop forever, and it's why the
+    algorithm must *backtrack*: a node blocked on the current path must become
+    available again once the search retreats past it.
+
+    Implementation sketch (recursive; an explicit stack also works):
+      1. Keep a ``path`` list holding the route walked so far, starting at
+         [source].
+      2. If the node at the end of ``path`` is ``target``, record a COPY of
+         ``path`` (a path of N nodes has N-1 hops; [source] alone covers the
+         source == target case).
+      3. If ``path`` already spans ``max_depth`` hops, dead end — go back.
+      4. Otherwise, for each successor NOT already in ``path``: append it,
+         recurse, then pop it off again. That pop is the backtracking step.
+
+    Returns:
+        A list of paths, each a list of nodes [source, ..., target], in any
+        order. Empty list if target is unreachable within ``max_depth`` hops.
+
+    Complexity: worst case exponential in ``max_depth`` — which is exactly why
+    the depth limit exists. (Keep this in mind for Exercise 2, where wanting
+    only one shortest path lets a different traversal do far less work.)
+    """
+    raise NotImplementedError("Exercise 1: implement all_paths")
+
+
+# ---------------------------------------------------------------------------
+# EXERCISE 2 — Breadth-first shortest path
 # ---------------------------------------------------------------------------
 def bfs_shortest_path(graph: DirectedGraph, source: Node, target: Node) -> list[Node] | None:
     """Return the shortest follow-path from ``source`` to ``target``.
 
     Use **breadth-first search (BFS)**. Because every edge has weight 1, the
-    first time BFS reaches ``target`` it has found a shortest path.
+    first time BFS reaches ``target`` it has found a shortest path. Contrast
+    with Exercise 1: DFS dives deep down one branch; BFS explores in expanding
+    rings, so it finds the nearest target without enumerating every route.
 
     Implementation sketch:
       1. If source == target, return [source].
@@ -52,11 +96,11 @@ def bfs_shortest_path(graph: DirectedGraph, source: Node, target: Node) -> list[
 
     Complexity: O(V + E).
     """
-    raise NotImplementedError("Exercise 1: implement bfs_shortest_path")
+    raise NotImplementedError("Exercise 2: implement bfs_shortest_path")
 
 
 # ---------------------------------------------------------------------------
-# EXERCISE 2 — Degrees of separation
+# EXERCISE 3 — Degrees of separation
 # ---------------------------------------------------------------------------
 def degrees_of_separation(graph: DirectedGraph, source: Node, target: Node) -> int | None:
     """Return the number of hops on the shortest path source -> target.
@@ -68,11 +112,11 @@ def degrees_of_separation(graph: DirectedGraph, source: Node, target: Node) -> i
     Returns:
         The hop count (0 if source == target), or ``None`` if unreachable.
     """
-    raise NotImplementedError("Exercise 2: implement degrees_of_separation")
+    raise NotImplementedError("Exercise 3: implement degrees_of_separation")
 
 
 # ---------------------------------------------------------------------------
-# EXERCISE 3 — Reachable set within a depth limit
+# EXERCISE 4 — Reachable set within a depth limit
 # ---------------------------------------------------------------------------
 def reachable_within(graph: DirectedGraph, source: Node, max_depth: int) -> dict[Node, int]:
     """Return every node reachable from ``source`` within ``max_depth`` hops.
@@ -87,11 +131,11 @@ def reachable_within(graph: DirectedGraph, source: Node, max_depth: int) -> dict
     Returns:
         dict mapping node -> distance, for all distances in [0, max_depth].
     """
-    raise NotImplementedError("Exercise 3: implement reachable_within")
+    raise NotImplementedError("Exercise 4: implement reachable_within")
 
 
 # ---------------------------------------------------------------------------
-# EXERCISE 4 — Common neighbors
+# EXERCISE 5 — Common neighbors
 # ---------------------------------------------------------------------------
 def common_neighbors(graph: DirectedGraph, a: Node, b: Node) -> set[Node]:
     """Return the set of accounts that BOTH ``a`` and ``b`` follow.
@@ -102,11 +146,11 @@ def common_neighbors(graph: DirectedGraph, a: Node, b: Node) -> set[Node]:
     Returns:
         The set of nodes followed by both a and b (may be empty).
     """
-    raise NotImplementedError("Exercise 4: implement common_neighbors")
+    raise NotImplementedError("Exercise 5: implement common_neighbors")
 
 
 # ---------------------------------------------------------------------------
-# EXERCISE 5 — Jaccard similarity
+# EXERCISE 6 — Jaccard similarity
 # ---------------------------------------------------------------------------
 def jaccard_similarity(graph: DirectedGraph, a: Node, b: Node) -> float:
     """Return how similar two users are by who they follow, in [0.0, 1.0].
@@ -120,11 +164,11 @@ def jaccard_similarity(graph: DirectedGraph, a: Node, b: Node) -> float:
     Returns:
         A float in [0.0, 1.0]; 1.0 means they follow exactly the same accounts.
     """
-    raise NotImplementedError("Exercise 5: implement jaccard_similarity")
+    raise NotImplementedError("Exercise 6: implement jaccard_similarity")
 
 
 # ---------------------------------------------------------------------------
-# EXERCISE 6 — Friend recommendations ("People you may know")
+# EXERCISE 7 — Friend recommendations ("People you may know")
 # ---------------------------------------------------------------------------
 def recommend_users(graph: DirectedGraph, user: Node, limit: int = 10) -> list[tuple[Node, int]]:
     """Recommend accounts for ``user`` to follow, best first.
@@ -142,11 +186,11 @@ def recommend_users(graph: DirectedGraph, user: Node, limit: int = 10) -> list[t
         A list of (candidate_node, score) tuples, highest score first,
         at most ``limit`` long.
     """
-    raise NotImplementedError("Exercise 6: implement recommend_users")
+    raise NotImplementedError("Exercise 7: implement recommend_users")
 
 
 # ---------------------------------------------------------------------------
-# EXERCISE 7 — Connected components
+# EXERCISE 8 — Connected components
 # ---------------------------------------------------------------------------
 def connected_components(graph: DirectedGraph) -> list[set[Node]]:
     """Partition the network into connected components (treat edges as undirected).
@@ -159,11 +203,11 @@ def connected_components(graph: DirectedGraph) -> list[set[Node]]:
     Returns:
         A list of sets of nodes. Every node appears in exactly one set.
     """
-    raise NotImplementedError("Exercise 7: implement connected_components")
+    raise NotImplementedError("Exercise 8: implement connected_components")
 
 
 # ---------------------------------------------------------------------------
-# EXERCISE 8 — Local clustering coefficient
+# EXERCISE 9 — Local clustering coefficient
 # ---------------------------------------------------------------------------
 def local_clustering_coefficient(graph: DirectedGraph, node: Node) -> float:
     """Return the clustering coefficient of ``node`` in [0.0, 1.0].
@@ -182,11 +226,11 @@ def local_clustering_coefficient(graph: DirectedGraph, node: Node) -> float:
         A float in [0.0, 1.0]; 1.0 means all the node's neighbors follow
         each other (a clique).
     """
-    raise NotImplementedError("Exercise 8: implement local_clustering_coefficient")
+    raise NotImplementedError("Exercise 9: implement local_clustering_coefficient")
 
 
 # ---------------------------------------------------------------------------
-# EXERCISE 9 — PageRank (influence ranking)
+# EXERCISE 10 — PageRank (influence ranking)
 # ---------------------------------------------------------------------------
 def pagerank(
     graph: DirectedGraph,
@@ -213,11 +257,11 @@ def pagerank(
     Returns:
         dict mapping node -> PageRank score.
     """
-    raise NotImplementedError("Exercise 9: implement pagerank")
+    raise NotImplementedError("Exercise 10: implement pagerank")
 
 
 # ---------------------------------------------------------------------------
-# EXERCISE 10 — Community detection (label propagation)
+# EXERCISE 11 — Community detection (label propagation)
 # ---------------------------------------------------------------------------
 def detect_communities(graph: DirectedGraph) -> dict[Node, int]:
     """Group users into communities using **label propagation**.
@@ -234,4 +278,4 @@ def detect_communities(graph: DirectedGraph) -> dict[Node, int]:
         dict mapping node -> community id (an int). Nodes in the same community
         share the same id.
     """
-    raise NotImplementedError("Exercise 10: implement detect_communities")
+    raise NotImplementedError("Exercise 11: implement detect_communities")

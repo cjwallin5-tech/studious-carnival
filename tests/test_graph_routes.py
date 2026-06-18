@@ -38,6 +38,15 @@ def test_degrees_endpoint_wired(client: TestClient) -> None:
     assert resp.status_code in OK_OR_NOT_IMPLEMENTED
 
 
+def test_all_paths_endpoint_wired(client: TestClient) -> None:
+    a = register_and_login(client, "alice")
+    b = register_and_login(client, "bob")
+    a_id = client.get("/api/v1/auth/me", headers=a).json()["id"]
+    b_id = client.get("/api/v1/auth/me", headers=b).json()["id"]
+    resp = client.get(f"/api/v1/graph/users/{a_id}/paths/{b_id}")
+    assert resp.status_code in OK_OR_NOT_IMPLEMENTED
+
+
 def test_influencers_endpoint_wired(client: TestClient) -> None:
     register_and_login(client, "alice")
     resp = client.get("/api/v1/graph/influencers")

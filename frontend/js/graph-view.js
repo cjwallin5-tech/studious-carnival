@@ -30,10 +30,26 @@ export class GraphView {
     this.alpha = 0;
     this._raf = null;
     this._drag = null;
+    this._pan = null;
+    this.view = { x: 0, y: 0, w: W, h: H };
 
     svg.addEventListener("pointermove", (e) => this._onPointerMove(e));
     svg.addEventListener("pointerup", () => this._onPointerUp());
     svg.addEventListener("pointerleave", () => this._onPointerUp());
+    svg.addEventListener("wheel", (e) => this._onWheel(e), { passive: false });
+    svg.addEventListener("pointerdown", (e) => {
+      if (this._drag) return; // a node grabbed the pointer first
+      e.preventDefault();
+      this._pan = this._svgPoint(e);
+    });
+    svg.addEventListener("dblclick", (e) => {
+      if (e.target === this.svg) this.resetView();
+    });
+  }
+
+  resetView() {
+    this.view = { x: 0, y: 0, w: W, h: H };
+    this._applyView();
   }
 
   /** Replace the graph. nodes: [{id, label}], edges: [{source, target}] */
@@ -229,6 +245,27 @@ export class GraphView {
     }
   }
 
+  // ----- zoom / pan ------------------------------------------------------------
+
+  _applyView() {
+    const v = this.view;
+    this.svg.setAttribute("viewBox", `${v.x} ${v.y} ${v.w} ${v.h}`);
+  }
+
+  _onWheel(e) {
+    e.preventDefault();
+    const p = this._svgPoint(e);
+    const factor = Math.exp(e.deltaY * 0.002);
+    const w = Math.min(Math.max(this.view.w * factor, W / 8), W * 2);
+    const k = w / this.view.w;
+    // zoom around the cursor: keep p at the same screen position
+    this.view.x = p.x - (p.x - this.view.x) * k;
+    this.view.y = p.y - (p.y - this.view.y) * k;
+    this.view.w = w;
+    this.view.h *= k;
+    this._applyView();
+  }
+
   // ----- dragging --------------------------------------------------------------
 
   _svgPoint(e) {
@@ -239,16 +276,24 @@ export class GraphView {
   }
 
   _onPointerMove(e) {
-    if (!this._drag) return;
-    const p = this._svgPoint(e);
-    this._drag.node.x = p.x;
-    this._drag.node.y = p.y;
-    this._drag.moved = true;
-    this.alpha = Math.max(this.alpha, 0.3);
-    this._render();
+    if (this._drag) {
+      const p = this._svgPoint(e);
+      this._drag.node.x = p.x;
+      this._drag.node.y = p.y;
+      this._drag.moved = true;
+      this.alpha = Math.max(this.alpha, 0.3);
+      this._render();
+    } else if (this._pan) {
+      // shift the view so the point under the cursor stays under the cursor
+      const p = this._svgPoint(e);
+      this.view.x -= p.x - this._pan.x;
+      this.view.y -= p.y - this._pan.y;
+      this._applyView();
+    }
   }
 
   _onPointerUp() {
+    this._pan = null;
     if (!this._drag) return;
     this._lastDragMoved = this._drag.moved;
     setTimeout(() => (this._lastDragMoved = false), 0);
