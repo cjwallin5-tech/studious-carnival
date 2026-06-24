@@ -67,17 +67,22 @@ def all_paths(
     the depth limit exists. (Keep this in mind for Exercise 2, where wanting
     only one shortest path lets a different traversal do far less work.)
     """
-    if source == target:
-        return [[source]]
+    paths: list[list[Node]] = []
+    path: list[Node] = []
+
+    path.append(source)
+
     if max_depth == 0:
-        return []
-    paths = []
-    for node in graph.neighbors(source):
-        for path in all_paths(graph, node, target, max_depth - 1):
-            if source not in path:
-                paths.append([source] + path)
-    
-    return paths
+        return paths
+
+    if source == target:
+        paths.append(path)
+        return paths
+
+    else:
+        for node in graph.successors(source):
+            all_paths(graph, node, target, max_depth - 1)
+            return paths.append(path)
 
 
 # ---------------------------------------------------------------------------
