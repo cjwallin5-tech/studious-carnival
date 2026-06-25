@@ -207,6 +207,14 @@ class TestStep04SuccessorsPredecessors:
         g.add_edge(3, 1)
         assert g.neighbors(1) == g.successors(1) == {2}
 
+    def test_self_loop_is_its_own_successor_and_predecessor(self) -> None:
+        # A self-loop is a supported edge (see Step 02), so the node must
+        # appear in both of its own adjacency sets.
+        g = DirectedGraph()
+        g.add_edge(1, 1)
+        assert g.successors(1) == {1}
+        assert g.predecessors(1) == {1}
+
 
 # ---------------------------------------------------------------------------
 # Step 05 — out_degree / in_degree
@@ -234,6 +242,13 @@ class TestStep05Degrees:
             g.out_degree(42)
         with pytest.raises(KeyError):
             g.in_degree(42)
+
+    def test_self_loop_counts_toward_both_degrees(self) -> None:
+        # The single self-edge 1->1 is one outgoing AND one incoming edge.
+        g = DirectedGraph()
+        g.add_edge(1, 1)
+        assert g.out_degree(1) == 1
+        assert g.in_degree(1) == 1
 
 
 # ---------------------------------------------------------------------------
@@ -325,6 +340,17 @@ class TestStep07RemoveEdge:
         g.remove_edge(7, 8)  # neither node exists
         assert g.number_of_edges() == 0
 
+    def test_removing_a_self_loop(self) -> None:
+        # The 1->1 edge lives in both of node 1's adjacency sets; removing it
+        # must clear both while keeping the node.
+        g = DirectedGraph()
+        g.add_edge(1, 1)
+        g.remove_edge(1, 1)
+        assert not g.has_edge(1, 1)
+        assert g.has_node(1)
+        assert g.successors(1) == set()
+        assert g.predecessors(1) == set()
+
 
 # ---------------------------------------------------------------------------
 # Step 08 — remove_node
@@ -377,6 +403,28 @@ class TestStep08RemoveNode:
             assert g.successors(node) == set()
             assert g.predecessors(node) == set()
 
+    def test_removing_a_node_in_a_mutual_pair(self) -> None:
+        # 1 and 2 follow each other: 1 is both a successor and a predecessor of
+        # 2. Removing 1 must scrub it from BOTH of 2's adjacency sets — a
+        # one-sided cleanup would leave a dangling reference behind.
+        g = DirectedGraph()
+        g.add_edge(1, 2)
+        g.add_edge(2, 1)
+        g.remove_node(1)
+        assert g.nodes == {2}
+        assert g.successors(2) == set()
+        assert g.predecessors(2) == set()
+
+    def test_removing_a_node_with_a_self_loop(self) -> None:
+        # The self-edge 1->1 means 1 is its own neighbor on both sides;
+        # removal must not trip over cleaning the node up against itself.
+        g = DirectedGraph()
+        g.add_edge(1, 1)
+        g.add_edge(1, 2)
+        g.remove_node(1)
+        assert g.nodes == {2}
+        assert g.predecessors(2) == set()
+
 
 # ---------------------------------------------------------------------------
 # Step 09 — to_undirected
@@ -425,6 +473,16 @@ class TestStep09ToUndirected:
         u.add_edge(5, 6)
         assert not g.has_edge(2, 1)  # original is still directed
         assert not g.has_node(5)  # and didn't gain the copy's new edge
+
+    def test_self_loop_survives_the_undirected_copy(self) -> None:
+        # A self-loop has no "other direction"; it should be carried over as a
+        # single 1->1 edge, not dropped or doubled.
+        g = DirectedGraph()
+        g.add_edge(1, 1)
+        g.add_edge(1, 2)
+        u = g.to_undirected()
+        assert u.has_edge(1, 1)
+        assert set(u.edges()) == {(1, 1), (1, 2), (2, 1)}
 
 
 # ---------------------------------------------------------------------------

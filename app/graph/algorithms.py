@@ -22,6 +22,8 @@ connected_components, local_clustering_coefficient, pagerank,
 detect_communities.
 """
 
+from collections import deque
+
 from collections.abc import Hashable
 
 from app.graph.graph import DirectedGraph
@@ -63,20 +65,29 @@ def all_paths(
         A list of paths, each a list of nodes [source, ..., target], in any
         order. Empty list if target is unreachable within ``max_depth`` hops.
 
+    Raises:
+        KeyError if ``source`` is not in the graph. (Do NOT guard with
+        ``if source not in graph: return []`` — an unknown source is a
+        programming error, not an empty result. An unknown *target*, by
+        contrast, is simply unreachable, so it yields the empty list.)
+
     Complexity: worst case exponential in ``max_depth`` — which is exactly why
     the depth limit exists. (Keep this in mind for Exercise 2, where wanting
     only one shortest path lets a different traversal do far less work.)
     """
     if source == target:
         return [[source]]
+
     if max_depth == 0:
         return []
+
     paths = []
-    for node in graph.neighbors(source):
-        for path in all_paths(graph, node, target, max_depth - 1):
+
+    for nodes in graph.neighbors(source):
+        for path in all_paths(graph, nodes, target, max_depth - 1):
             if source not in path:
                 paths.append([source] + path)
-    
+
     return paths
 
 
@@ -104,9 +115,32 @@ def bfs_shortest_path(graph: DirectedGraph, source: Node, target: Node) -> list[
         The list of nodes [source, ..., target], or ``None`` if target is
         unreachable from source.
 
+    Raises:
+        KeyError if ``source`` is not in the graph. (An unknown ``target`` is
+        merely unreachable, so it yields ``None``.j
+
     Complexity: O(V + E).
     """
-    raise NotImplementedError("Exercise 2: implement bfs_shortest_path")
+    visited: set = set()
+    queue = deque([source])
+    parent: dict = {}
+
+    if source == target:
+        return [source]
+
+    while queue:
+        node = queue.popleft()
+        if node not in visited:
+            visited.add(node)
+            for neighbor in graph.neighbors(node):
+                if neighbor not in visited:
+                    queue.append(neighbor)
+                    parent[neighbor] = node
+                    if neighbor == target:
+                        path = [target]
+                        while path[-1] != source:
+                            path.append(parent[path[-1]])
+                        return path[::-1]
 
 
 # ---------------------------------------------------------------------------
@@ -121,6 +155,10 @@ def degrees_of_separation(graph: DirectedGraph, source: Node, target: Node) -> i
 
     Returns:
         The hop count (0 if source == target), or ``None`` if unreachable.
+
+    Raises:
+        KeyError if ``source`` is not in the graph (an unknown ``target`` is
+        unreachable, so it yields ``None``).
     """
     raise NotImplementedError("Exercise 3: implement degrees_of_separation")
 
@@ -140,6 +178,9 @@ def reachable_within(graph: DirectedGraph, source: Node, max_depth: int) -> dict
 
     Returns:
         dict mapping node -> distance, for all distances in [0, max_depth].
+
+    Raises:
+        KeyError if ``source`` is not in the graph.
     """
     raise NotImplementedError("Exercise 4: implement reachable_within")
 
@@ -155,6 +196,9 @@ def common_neighbors(graph: DirectedGraph, a: Node, b: Node) -> set[Node]:
 
     Returns:
         The set of nodes followed by both a and b (may be empty).
+
+    Raises:
+        KeyError if ``a`` or ``b`` is not in the graph.
     """
     raise NotImplementedError("Exercise 5: implement common_neighbors")
 
@@ -173,6 +217,10 @@ def jaccard_similarity(graph: DirectedGraph, a: Node, b: Node) -> float:
 
     Returns:
         A float in [0.0, 1.0]; 1.0 means they follow exactly the same accounts.
+
+    Raises:
+        KeyError if ``a`` or ``b`` is not in the graph. (This is distinct from
+        the "follows nobody" case, which is a valid input returning 0.0.)
     """
     raise NotImplementedError("Exercise 6: implement jaccard_similarity")
 
@@ -195,6 +243,9 @@ def recommend_users(graph: DirectedGraph, user: Node, limit: int = 10) -> list[t
     Returns:
         A list of (candidate_node, score) tuples, highest score first,
         at most ``limit`` long.
+
+    Raises:
+        KeyError if ``user`` is not in the graph.
     """
     raise NotImplementedError("Exercise 7: implement recommend_users")
 
@@ -235,6 +286,10 @@ def local_clustering_coefficient(graph: DirectedGraph, node: Node) -> float:
     Returns:
         A float in [0.0, 1.0]; 1.0 means all the node's neighbors follow
         each other (a clique).
+
+    Raises:
+        KeyError if ``node`` is not in the graph. (Fewer than 2 neighbors is a
+        valid input returning 0.0; a node that doesn't exist is not.)
     """
     raise NotImplementedError("Exercise 9: implement local_clustering_coefficient")
 
