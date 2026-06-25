@@ -160,7 +160,11 @@ def degrees_of_separation(graph: DirectedGraph, source: Node, target: Node) -> i
         KeyError if ``source`` is not in the graph (an unknown ``target`` is
         unreachable, so it yields ``None``).
     """
-    raise NotImplementedError("Exercise 3: implement degrees_of_separation")
+    hop = bfs_shortest_path(graph, source, target)
+    if source == target:
+        return 0
+    while hop is not None:
+        return len(hop) - 1
 
 
 # ---------------------------------------------------------------------------

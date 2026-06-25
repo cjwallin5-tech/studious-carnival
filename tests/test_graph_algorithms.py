@@ -32,7 +32,6 @@ def _graph(edges: list[tuple[int, int]], isolated: list[int] | None = None) -> D
 # --- Exercise 1: all_paths (DFS) -------------------------------------------
 
 
-@pytest.mark.xfail(raises=NotImplementedError, reason="implement all_paths")
 def test_all_paths_finds_every_route() -> None:
     # Three simple routes from 1 to 4: 1->2->4, 1->3->4, and 1->2->3->4.
     g = _graph([(1, 2), (1, 3), (2, 3), (2, 4), (3, 4)])
@@ -40,7 +39,6 @@ def test_all_paths_finds_every_route() -> None:
     assert paths == {(1, 2, 4), (1, 3, 4), (1, 2, 3, 4)}
 
 
-@pytest.mark.xfail(raises=NotImplementedError, reason="implement all_paths")
 def test_all_paths_respects_max_depth() -> None:
     g = _graph([(1, 2), (1, 3), (2, 3), (2, 4), (3, 4)])
     # With only 2 hops allowed, the 3-hop route 1->2->3->4 must be excluded.
@@ -48,7 +46,6 @@ def test_all_paths_respects_max_depth() -> None:
     assert paths == {(1, 2, 4), (1, 3, 4)}
 
 
-@pytest.mark.xfail(raises=NotImplementedError, reason="implement all_paths")
 def test_all_paths_handles_cycles() -> None:
     # 1->2->3->1 is a follow-loop; simple paths must not get stuck in it.
     g = _graph([(1, 2), (2, 3), (3, 1), (2, 4)])
@@ -56,7 +53,6 @@ def test_all_paths_handles_cycles() -> None:
     assert paths == {(1, 2, 4)}
 
 
-@pytest.mark.xfail(raises=NotImplementedError, reason="implement all_paths")
 def test_all_paths_edge_cases() -> None:
     g = _graph([(1, 2), (2, 3)])
     # source == target -> the trivial zero-hop path
@@ -65,7 +61,6 @@ def test_all_paths_edge_cases() -> None:
     assert algorithms.all_paths(g, 3, 1, max_depth=3) == []
 
 
-@pytest.mark.xfail(raises=NotImplementedError, reason="implement all_paths")
 def test_all_paths_includes_direct_edge() -> None:
     # The 1-hop route 1->4 and the 2-hop route 1->2->4 are both valid.
     g = _graph([(1, 2), (2, 4), (1, 4)])
@@ -73,7 +68,6 @@ def test_all_paths_includes_direct_edge() -> None:
     assert paths == {(1, 4), (1, 2, 4)}
 
 
-@pytest.mark.xfail(raises=NotImplementedError, reason="implement all_paths")
 def test_all_paths_returns_lists_of_nodes() -> None:
     # Each path is a list (a copy), never a shared/aliased reference.
     g = _graph([(1, 2), (2, 3)])
@@ -82,7 +76,6 @@ def test_all_paths_returns_lists_of_nodes() -> None:
     assert all(isinstance(p, list) for p in result)
 
 
-@pytest.mark.xfail(raises=NotImplementedError, reason="implement all_paths")
 def test_all_paths_max_depth_one() -> None:
     # Only the single-hop route survives a 1-hop limit.
     g = _graph([(1, 2), (2, 4), (1, 4)])
@@ -90,7 +83,6 @@ def test_all_paths_max_depth_one() -> None:
     assert paths == {(1, 4)}
 
 
-@pytest.mark.xfail(raises=NotImplementedError, reason="implement all_paths")
 def test_all_paths_unknown_source_raises() -> None:
     # An unknown node is a programming error -> KeyError, NOT an empty list. (A
     # `if source not in graph: return []` guard would wrongly swallow this.) An
@@ -103,32 +95,27 @@ def test_all_paths_unknown_source_raises() -> None:
 # --- Exercise 2: bfs_shortest_path ----------------------------------------
 
 
-@pytest.mark.xfail(raises=NotImplementedError, reason="implement bfs_shortest_path")
 def test_bfs_shortest_path_finds_shortest() -> None:
     # 1->5->4 (2 hops) is shorter than 1->2->3->4 (3 hops).
     g = _graph([(1, 2), (2, 3), (3, 4), (1, 5), (5, 4)])
     assert algorithms.bfs_shortest_path(g, 1, 4) == [1, 5, 4]
 
 
-@pytest.mark.xfail(raises=NotImplementedError, reason="implement bfs_shortest_path")
 def test_bfs_shortest_path_same_node() -> None:
     g = _graph([(1, 2)])
     assert algorithms.bfs_shortest_path(g, 1, 1) == [1]
 
 
-@pytest.mark.xfail(raises=NotImplementedError, reason="implement bfs_shortest_path")
 def test_bfs_shortest_path_unreachable() -> None:
     g = _graph([(1, 2), (2, 3)])
     assert algorithms.bfs_shortest_path(g, 3, 1) is None
 
 
-@pytest.mark.xfail(raises=NotImplementedError, reason="implement bfs_shortest_path")
 def test_bfs_shortest_path_direct_edge() -> None:
     g = _graph([(1, 2)])
     assert algorithms.bfs_shortest_path(g, 1, 2) == [1, 2]
 
 
-@pytest.mark.xfail(raises=NotImplementedError, reason="implement bfs_shortest_path")
 def test_bfs_shortest_path_handles_cycles() -> None:
     # The follow-loop 1->2->3->1 must not trap BFS (a missing `visited` set
     # would spin forever). 3->4 is only reachable by going around the loop.
@@ -137,7 +124,6 @@ def test_bfs_shortest_path_handles_cycles() -> None:
     assert algorithms.bfs_shortest_path(g, 3, 4) == [3, 1, 2, 4]
 
 
-@pytest.mark.xfail(raises=NotImplementedError, reason="implement bfs_shortest_path")
 def test_bfs_shortest_path_picks_fewest_hops() -> None:
     # Two equally short routes (1->2->4 and 1->3->4). Either is correct, so
     # assert the hop count and endpoints rather than one specific route.
@@ -148,7 +134,6 @@ def test_bfs_shortest_path_picks_fewest_hops() -> None:
     assert len(path) == 3
 
 
-@pytest.mark.xfail(raises=NotImplementedError, reason="implement bfs_shortest_path")
 def test_bfs_shortest_path_unknown_source_raises() -> None:
     # Unknown source is an error (KeyError); an unknown target is merely
     # unreachable (None, see test_bfs_shortest_path_unreachable).
@@ -160,7 +145,6 @@ def test_bfs_shortest_path_unknown_source_raises() -> None:
 # --- Exercise 3: degrees_of_separation ------------------------------------
 
 
-@pytest.mark.xfail(raises=NotImplementedError, reason="implement degrees_of_separation")
 def test_degrees_of_separation() -> None:
     g = _graph([(1, 2), (2, 3), (3, 4), (1, 5), (5, 4)])
     assert algorithms.degrees_of_separation(g, 1, 4) == 2
@@ -168,7 +152,6 @@ def test_degrees_of_separation() -> None:
     assert algorithms.degrees_of_separation(g, 4, 1) is None
 
 
-@pytest.mark.xfail(raises=NotImplementedError, reason="implement degrees_of_separation")
 def test_degrees_of_separation_counts_hops_not_nodes() -> None:
     # A direct follow is 1 degree; the far end of a 3-edge chain is 3.
     g = _graph([(1, 2), (2, 3), (3, 4)])
@@ -176,7 +159,6 @@ def test_degrees_of_separation_counts_hops_not_nodes() -> None:
     assert algorithms.degrees_of_separation(g, 1, 4) == 3
 
 
-@pytest.mark.xfail(raises=NotImplementedError, reason="implement degrees_of_separation")
 def test_degrees_of_separation_handles_cycles() -> None:
     # The follow-loop 1->2->3->1 must not cause an infinite search.
     g = _graph([(1, 2), (2, 3), (3, 1), (2, 4)])
@@ -184,7 +166,6 @@ def test_degrees_of_separation_handles_cycles() -> None:
     assert algorithms.degrees_of_separation(g, 3, 4) == 3
 
 
-@pytest.mark.xfail(raises=NotImplementedError, reason="implement degrees_of_separation")
 def test_degrees_of_separation_unknown_source_raises() -> None:
     # Unknown source is an error (KeyError); an unknown target is unreachable (None).
     g = _graph([(1, 2), (2, 3)])
