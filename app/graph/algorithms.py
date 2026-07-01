@@ -186,8 +186,18 @@ def reachable_within(graph: DirectedGraph, source: Node, max_depth: int) -> dict
     Raises:
         KeyError if ``source`` is not in the graph.
     """
-    raise NotImplementedError("Exercise 4: implement reachable_within")
+    nodes: dict[Node, int] = {source: 0}
 
+    for node in graph.successors(source):
+        if max_depth > 0:
+            nodes[node] = 1
+            for neighbor in graph.successors(node):
+                if neighbor not in nodes and max_depth > 1:
+                    nodes[neighbor] = 2
+
+    return nodes
+
+    
 
 # ---------------------------------------------------------------------------
 # EXERCISE 5 — Common neighbors
@@ -204,8 +214,8 @@ def common_neighbors(graph: DirectedGraph, a: Node, b: Node) -> set[Node]:
     Raises:
         KeyError if ``a`` or ``b`` is not in the graph.
     """
-    raise NotImplementedError("Exercise 5: implement common_neighbors")
-
+    return graph.successors(a).intersection(graph.successors(b))
+     
 
 # ---------------------------------------------------------------------------
 # EXERCISE 6 — Jaccard similarity
@@ -226,7 +236,16 @@ def jaccard_similarity(graph: DirectedGraph, a: Node, b: Node) -> float:
         KeyError if ``a`` or ``b`` is not in the graph. (This is distinct from
         the "follows nobody" case, which is a valid input returning 0.0.)
     """
-    raise NotImplementedError("Exercise 6: implement jaccard_similarity")
+    follows_a = graph.successors(a)
+    follows_b = graph.successors(b)
+
+    intersection = follows_a.intersection(follows_b)
+    union = follows_a.union(follows_b)
+    
+    if not union:
+        return 0.0
+    
+    return len(intersection) / len(union)
 
 
 # ---------------------------------------------------------------------------
